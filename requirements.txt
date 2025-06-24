@@ -1,0 +1,7 @@
+ttkbootstrap
+requests
+matplotlib
+reportlab
+python-docx
+geoip2
+winsound; platform_system == "Windows"
