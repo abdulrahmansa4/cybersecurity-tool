@@ -4,4 +4,11 @@ matplotlib
 reportlab
 python-docx
 geoip2
+# winsound is built-in on Windows, but add as marker for clarity
 winsound; platform_system == "Windows"
+# For Pentest tab (whois command)
+python-whois
+# For SSL info (if using openssl via subprocess, user must have openssl installed)
+# For curl (used via subprocess), user must have curl installed
+# For nmap (used via subprocess), user must have nmap installed
+# For Wireshark/tshark (used via subprocess), user must have Wireshark/tshark installed
