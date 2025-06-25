@@ -273,8 +273,8 @@ class WireSharkAnalyzer:
         tb.Checkbutton(settings_frame, text="Show Tooltips", variable=self.show_tooltips_var, bootstyle="info").pack(anchor="w", padx=10, pady=2)
         tb.Checkbutton(settings_frame, text="Confirm Before Stopping Scan", variable=self.confirm_stop_var, bootstyle="warning").pack(anchor="w", padx=10, pady=2)
         tb.Checkbutton(settings_frame, text="Save Logs to File", variable=self.save_logs_var, bootstyle="secondary").pack(anchor="w", padx=10, pady=2)
-        tb.Checkbutton(settings_frame, text="Show AI Explanation in Threats", variable=self.show_ai_explain_var, bootstyle="info").pack(anchor="w", padx=10, pady=2)
-        tb.Checkbutton(settings_frame, text="Show AI Fix in Threats", variable=self.show_ai_fix_var, bootstyle="info").pack(anchor="w", padx=10, pady=2)
+        tb.Checkbutton(settings_frame, text="Show AI Explanation in Threats", variable=self.show_ai_explain_var, bootstyle="info", command=self.update_threat_analysis).pack(anchor="w", padx=10, pady=2)
+        tb.Checkbutton(settings_frame, text="Show AI Fix in Threats", variable=self.show_ai_fix_var, bootstyle="info", command=self.update_threat_analysis).pack(anchor="w", padx=10, pady=2)
 
         tb.Button(settings_frame, text="Save Settings", command=self.save_settings, bootstyle="success").pack(anchor="w", padx=10, pady=10)
 
@@ -689,11 +689,13 @@ class WireSharkAnalyzer:
         self.threat_tree.delete(*self.threat_tree.get_children())
         if not self.threats:
             return
+        show_explain = self.show_ai_explain_var.get()
+        show_fix = self.show_ai_fix_var.get()
         for t in self.threats:
             color = self.get_threat_color(t["threat"])
             src_country = self.get_country_flag(t["src"])
             dst_country = self.get_country_flag(t["dst"])
-            self.threat_tree.insert("", tb.END, values=(
+            values = [
                 t["no"],
                 t["time"],
                 t["src"],
@@ -701,10 +703,13 @@ class WireSharkAnalyzer:
                 t["dst"],
                 dst_country,
                 t["threat"],
-                t["info"],
-                t.get("ai_explain", ""),
-                t.get("ai_fix", "")
-            ), tags=(t["threat"],))
+                t["info"]
+            ]
+            if show_explain:
+                values.append(t.get("ai_explain", ""))
+            if show_fix:
+                values.append(t.get("ai_fix", ""))
+            self.threat_tree.insert("", tb.END, values=values, tags=(t["threat"],))
             self.threat_tree.tag_configure(t["threat"], foreground=color, font=("Segoe UI", 10, "bold"))
         # Update summary as before
         summary = ""
@@ -830,9 +835,9 @@ class WireSharkAnalyzer:
                     writer.writerow([
                         t["no"], t["time"], t["src"], t["dst"], t["threat"], t["info"], t.get("ai_explain", ""), t.get("ai_fix", "")
                     ])
-            Messagebox.show_info("Export Complete", f"Threats saved to {filepath}")
+            Messagebox.show_info(f"Threats saved to {filepath}", "Export Complete")
         except Exception as e:
-            Messagebox.show_error("Export Error", str(e))
+            Messagebox.show_error(str(e), "Export Error")
 
     def export_threats_pdf(self):
         """Export threats data to PDF file"""
@@ -1333,11 +1338,11 @@ class WireSharkAnalyzer:
         if not filepath:
             return
         try:
-            with open(filepath, "w", encoding="utf-8") as f:
+            with open(filepath, "w", newline="", encoding="utf-8") as f:
                 json.dump(self.packets, f, indent=2)
-            Messagebox.show_info("Export Complete", f"Data saved to {filepath}")
+            Messagebox.show_info(f"Data saved to {filepath}", "Export Complete")
         except Exception as e:
-            Messagebox.show_error("Export Error", str(e))
+            Messagebox.show_error(str(e), "Export Error")
 
     def export_packets_csv(self):
         """Export all packets to a CSV file, marking threats and adding a threat color column."""
@@ -1358,9 +1363,9 @@ class WireSharkAnalyzer:
                         pkt["no"], pkt["time"], pkt["src"], pkt["dst"], pkt["protocol"], pkt["length"], pkt["info"],
                         threat, pkt.get("ai_explain", ""), pkt.get("ai_fix", ""), color
                     ])
-            Messagebox.show_info("Export Complete", f"Packets saved to {filepath}")
+            Messagebox.show_info(f"Packets saved to {filepath}", "Export Complete")
         except Exception as e:
-            Messagebox.show_error("Export Error", str(e))
+            Messagebox.show_error(str(e), "Export Error")
 
     def show_nmap_version(self):
         try:
@@ -1392,7 +1397,7 @@ class WireSharkAnalyzer:
         if filepath:
             with open(filepath, "w") as f:
                 json.dump(profile, f, indent=2)
-            Messagebox.show_info("Profile Saved", f"Profile saved to {filepath}")
+            Messagebox.show_info(f"Profile saved to {filepath}", "Profile Saved")
 
     def load_nmap_profile(self):
         """Load Nmap scan settings from a JSON file."""
@@ -1499,6 +1504,7 @@ class WireSharkAnalyzer:
         threading.Thread(target=ai_thread, daemon=True).start()
 
     def on_closing(self):
+       
         """Handle cleanup and close the application safely."""
         # Stop any running capture
         self.is_capturing = False
@@ -1761,6 +1767,7 @@ class WireSharkAnalyzer:
         self.pentest_output.insert(tb.END, output + "\n", "output")
         self.pentest_output.config(state="disabled")
         self.pentest_output.see(tb.END)
+
 if __name__ == "__main__":
     root = tb.Window(themename="cyborg")  # or "cyborg" for dark mode
     app = WireSharkAnalyzer(root)
