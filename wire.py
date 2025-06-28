@@ -1016,14 +1016,14 @@ class WireSharkAnalyzer:
         target = self.nmap_target_entry.get().strip()
         if not self.is_nmap_installed():
             Messagebox.show_error("Nmap Error", "Nmap is not installed or not in your PATH. Please install Nmap from htbs://nmap.org/download.html and ensure it is accessible.")
-            return
+            return os.path.exists(self.get_nmap_path())
         if not target or not self.is_valid_target(target):
             Messagebox.show_error("Nmap", "Please enter a valid IP address or domain.")
             return
 
         nmap_path = self.get_nmap_path()
         nmap_args = [nmap_path]
-
+    
         # IPv6
         if self.nmap_ipv6_var.get():
             nmap_args.append("-6")
@@ -1580,6 +1580,7 @@ class WireSharkAnalyzer:
         return True
     
     def get_nmap_path(self):
+        return r"C:\Program Files (x86)\Nmap\nmap.exe"
         """Return the path to the nmap executable."""
         # Adjust this path if nmap is installed elsewhere
         possible_paths = [
