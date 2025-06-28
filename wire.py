@@ -131,8 +131,9 @@ class WireSharkAnalyzer:
         self.notebook.add(self.tab_stats, text="Statistics")
         self.notebook.add(self.tab_chat, text="AI Chat")
         self.notebook.add(self.tab_nmap, text="Nmap Analyzer")
-        self.notebook.add(self.tab_settings, text="Settings")
         self.notebook.add(self.tab_pentest, text="Pentest Tools")
+        self.notebook.add(self.tab_settings, text="Settings")
+        
 
         # --- Live Packets Tab ---
         control_frame = tb.Labelframe(self.tab_packets, text="Capture Controls", padding=10)
@@ -1498,6 +1499,8 @@ class WireSharkAnalyzer:
                 self.chat_display.insert(tb.END, f"AI: {ai_msg}\n", "ai")
                 self.chat_display.config(state="disabled")
                 self.chat_display.see(tb.END)
+                
+                
 
             self.root.after(0, show_ai_response)
 
