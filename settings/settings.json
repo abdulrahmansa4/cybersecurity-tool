@@ -1,0 +1,12 @@
+{
+  "model_name": "deepseek-coder",
+  "sound": true,
+  "autoscroll": true,
+  "darkmode": false,
+  "autosave": false,
+  "show_tooltips": true,
+  "confirm_stop": true,
+  "save_logs": true,
+  "show_ai_explain": true,
+  "show_ai_fix": true
+}
